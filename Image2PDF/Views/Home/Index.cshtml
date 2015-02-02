@@ -1,0 +1,70 @@
+﻿<div class="container">
+    <div class="row header">
+        <div class="col-md-12">
+            <h3 class="logo">
+                <a href="~/">
+                    Image2PDF
+                </a>
+            </h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <div class="modal metro">
+                <div class="modal-content">
+                    <form method="post" role="form" autocomplete="off" enctype="multipart/form-data" id="conversionForm" action="~/home/convert">
+                        <div class="modal-body">
+                            <h4>Upload your images.</h4>
+                            <p>
+                                Type an email address and the application password below, then upload your images. When you're done, press 'Convert to PDF'. We'll convert your images to a PDF document and email it to you.
+                            </p>
+                            @Html.AntiForgeryToken()
+                            <div class="form-group">
+                                <label for="username">Email Address</label>
+                                <input type="email" class="form-control" id="username" name="Username" placeholder="john.doe&#64;example.com" value="@ViewBag.Username" />
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Application Password</label>
+                                <input type="password" class="form-control" id="password" name="Password" />
+                            </div>
+                            <div class="imageContainer" data-bind="foreach: ImagesToUpload">
+                                <div class="form-group">
+                                    <label>Image <span data-bind="text: $index() + 1"></span></label>
+                                    <span class="btn btn-default btn-file">
+                                        Select Image File <input type="file" name="imageToUpload" data-bind="event: { change: $parent.HandleOnFileSelected }">
+                                    </span>
+                                    <image class="img-responsive img-thumbnail" src="#" data-bind="attr: {src: source}, visible: imageIsVisible" />
+                                </div>
+                            </div>
+                            <p class="error" data-bind="text: ErrorText, visible: ErrorText()"></p>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <button class="btn btn-purple " type="button" data-bind="click: HandleConvertClick, html: ConvertText">
+                                        <i class="fa fa-cloud-upload marRight5"></i>
+                                        Convert to PDF
+                                    </button>
+                                </div>
+                                <div class="col-xs-6">
+                                    <button class="btn btn-default pull-right" type="button" data-bind="click: HandleAddImageClick, html: AddImageText, visible: _isConverting() === false"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="info-line">
+                by <a href="https://asyncbuild.com" target="_blank"> Async Build</a>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <input type="hidden" id="errorJson" value="@Json.Encode(new { Error = ViewBag.Error }) " />
+    @Scripts.Render("~/bundles/typescript/client")
+                                          }

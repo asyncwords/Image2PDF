@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Image2PDF</title>
+    @Styles.Render("~/Content/css")
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body class="minimal">
+    <!--#region Render Body -->
+    <div id="body">
+        @RenderBody()
+    </div>
+    <!--#endregion -->
+    <!--#region Scripts -->
+    <div class="hide">
+        @Scripts.Render("~/bundles/jquery")
+        @Scripts.Render("~/bundles/bootstrap")
+        @Scripts.Render("~/bundles/knockout")
+        @RenderSection("scripts", required: false)
+    </div>
+    <!--#endregion -->
+</body>
+</html>

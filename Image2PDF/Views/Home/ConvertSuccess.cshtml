@@ -1,0 +1,47 @@
+﻿<div class="container">
+    <div class="row header">
+        <div class="col-md-12">
+            <h3 class="logo">
+                <a href="~/">
+                    Image2PDF
+                </a>
+            </h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <div class="modal metro">
+                <div class="modal-content">
+                    <form method="post" role="form" autocomplete="off" id="conversionForm" action="~/home/convert">
+                        <div class="modal-body">
+                            <h4>@ViewBag.Title</h4>
+                            <p>
+                                Your images have been successfully converted. You will receive a PDF document at <strong>@ViewBag.Username</strong> momentarily. Be sure to check your junk or spam mail.
+                            </p>
+                            <div class="padTop100 padBottom100 text-center">
+                                <i class="fa fa-smile-o fa-5x color"></i>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <a class="btn btn-default " href="~/home">
+                                        <i class="fa fa-refresh color marRight5"></i>
+                                        Create Another PDF
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="info-line">
+                by <a href="https://asyncbuild.com" target="_blank"> Async Build</a>
+            </div>
+        </div>
+    </div>
+</div>
