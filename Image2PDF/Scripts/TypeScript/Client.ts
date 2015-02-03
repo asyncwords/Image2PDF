@@ -9,6 +9,7 @@
         filename: KnockoutObservable<string>;
         source: KnockoutObservable<string>;
         imageIsVisible: KnockoutObservable<boolean>;
+        elementName: KnockoutObservable<string>;
     }
 
     export interface CommonResponse {
@@ -83,7 +84,8 @@ class Image2PDF {
             var image: Interfaces.ImageToUpload = {
                 filename: ko.observable(""),
                 source: ko.observable("#"),
-                imageIsVisible: ko.observable(false)
+                imageIsVisible: ko.observable(false),
+                elementName: ko.observable("imageToUpload-" + this.ImagesToUpload().length + 1)
             }
 
             image.source.subscribe(this._handleImageSourceChange, image); //Must pass image as second paramter to give access to the proper 'this'

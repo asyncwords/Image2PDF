@@ -54,40 +54,46 @@ namespace Image2PDF.Controllers
             {
 				using (var stream = new MemoryStream())
 				{
+					//Create doc with no margins
 					var doc = new Document();
+					doc.SetMargins(0, 0, 0, 0);
+
+					//Get a writer and open document
 					PdfWriter.GetInstance(doc, stream);
 					doc.Open();
-
-					var firstPage = true;
 
 					foreach (string fileName in Request.Files)
 					{
 						HttpPostedFileBase file = Request.Files[fileName];
 						
-						if (!firstPage)
+						//Get and scale image
+						var image = Image.GetInstance(file.InputStream);
+						image.ScaleToFit(doc.PageSize);
+						
+						//Add image to PDF
+						doc.Add(image);
+						doc.NewPage();
+					}
+					
+					doc.Close();
+
+                    //Must call doc.close to send a valid PDF, but this closes the stream too. Clone it to send.
+                    using(var clonedStream = new MemoryStream(stream.ToArray()))
+					{
+						clonedStream.Position = 0;
+						
+						//Send PDF to user
+						var send = this.Send(username, clonedStream);
+						if (!send.Success)
 						{
-							doc.NewPage();
+							return RedirectToAction("Index", new { username = username, error = send.Message });
 						}
 						else
 						{
-							firstPage = false;
+							return RedirectToAction("ConvertSuccess", new { username = username });
 						}
-
-						//Following line throws an exception "Index was outside the bounds of the array."
-						doc.Add(Image.GetInstance(file.InputStream));
 					}
-					
-					var send = this.Send(username, stream);
-					
-					if(!send.Success){
-						return RedirectToAction("Index", new { username = username, error = send.Message });
-					}
-					else{
-						return RedirectToAction("ConvertSuccess", new { username = username});
-					}
-
-					doc.Close();				
-				}
+                }
             }
         }
 		
@@ -112,7 +118,7 @@ namespace Image2PDF.Controllers
                 myMessage.Text = "Thank you for using Image2PDF! Your images have been converted to a PDF document, which you will find attached to this email.";
 
                 //Attach the PDF
-                myMessage.AddAttachment(stream, DateTime.Now.ToString("Image2PDF_MMM-dd-yyyy-hh-mm-ss") + ".pdf");
+                myMessage.AddAttachment(stream, string.Format("Image2PDF_{0}.pdf", DateTime.Now.ToString("MMM-dd-yyyy-hh-mm-ss")));
 
                 // Create network credentials to access your SendGrid account.
                 var credentials = new NetworkCredential("Rakathos", "inmYp4lac3de3p");

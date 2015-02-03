@@ -31,9 +31,9 @@
                                 <div class="form-group">
                                     <label>Image <span data-bind="text: $index() + 1"></span></label>
                                     <span class="btn btn-default btn-file">
-                                        Select Image File <input type="file" name="imageToUpload" data-bind="event: { change: $parent.HandleOnFileSelected }">
+                                        Select Image File <input type="file" data-bind="attr: {name: elementName}, event: { change: $parent.HandleOnFileSelected }">  
                                     </span>
-                                    <image class="img-responsive img-thumbnail" src="#" data-bind="attr: {src: source}, visible: imageIsVisible" />
+                                    <image class="img-responsive img-thumbnail" src="#" data-bind="attr: {src: source}, visible: imageIsVisible" />   
                                 </div>
                             </div>
                             <p class="error" data-bind="text: ErrorText, visible: ErrorText()"></p>

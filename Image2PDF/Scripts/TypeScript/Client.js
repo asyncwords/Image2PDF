@@ -70,7 +70,8 @@ var Image2PDF = (function () {
             var image = {
                 filename: ko.observable(""),
                 source: ko.observable("#"),
-                imageIsVisible: ko.observable(false)
+                imageIsVisible: ko.observable(false),
+                elementName: ko.observable("imageToUpload-" + this.ImagesToUpload().length + 1)
             };
             image.source.subscribe(this._handleImageSourceChange, image); //Must pass image as second paramter to give access to the proper 'this'
             image.imageIsVisible.subscribe(function (newValue) {
