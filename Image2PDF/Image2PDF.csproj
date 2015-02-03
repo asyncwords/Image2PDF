@@ -137,6 +137,15 @@
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="Images\Favicons\apple-touch-icon-114x114.png" />
+    <Content Include="Images\Favicons\apple-touch-icon-120x120.png" />
+    <Content Include="Images\Favicons\apple-touch-icon-144x144.png" />
+    <Content Include="Images\Favicons\apple-touch-icon-152x152.png" />
+    <Content Include="Images\Favicons\apple-touch-icon-57x57.png" />
+    <Content Include="Images\Favicons\apple-touch-icon-72x72.png" />
+    <Content Include="Images\Favicons\apple-touch-icon-76x76.png" />
+    <Content Include="Images\Favicons\apple-touch-icon.png" />
+    <Content Include="Images\Favicons\favicon.ico" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
