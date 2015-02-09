@@ -8,6 +8,10 @@ using SendGrid;
 using iTextSharp.text.pdf;
 using System.Net;
 using System.Net.Mail;
+using Mandrill;
+using System.Configuration;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Image2PDF.Controllers
 {
@@ -24,10 +28,11 @@ namespace Image2PDF.Controllers
 
         public JsonResult CheckPassword(string password)
         {
-			return Json(this._CheckPassword(password), JsonRequestBehavior.AllowGet);
+            return Json(this._CheckPassword(password), JsonRequestBehavior.AllowGet);
         }
-		
-		private CommonResponse _CheckPassword(string password){			
+
+        private CommonResponse _CheckPassword(string password)
+        {
             var output = new CommonResponse()
             {
                 Success = false,
@@ -40,7 +45,7 @@ namespace Image2PDF.Controllers
             }
 
             return output;
-		}
+        }
 
         public ActionResult Convert(string username, string password)
         {
@@ -52,98 +57,101 @@ namespace Image2PDF.Controllers
             }
             else
             {
-				using (var stream = new MemoryStream())
-				{
-					//Create doc with no margins
-					var doc = new Document();
-					doc.SetMargins(0, 0, 0, 0);
+                using (var stream = new MemoryStream())
+                {
+                    //Create doc with no margins
+                    var doc = new Document();
+                    doc.SetMargins(0, 0, 0, 0);
 
-					//Get a writer and open document
-					PdfWriter.GetInstance(doc, stream);
-					doc.Open();
+                    //Get a writer and open document
+                    PdfWriter.GetInstance(doc, stream);
+                    doc.Open();
 
-					foreach (string fileName in Request.Files)
-					{
-						HttpPostedFileBase file = Request.Files[fileName];
-						
-						//Get and scale image
-						var image = Image.GetInstance(file.InputStream);
-						image.ScaleToFit(doc.PageSize);
-						
-						//Add image to PDF
-						doc.Add(image);
-						doc.NewPage();
-					}
-					
-					doc.Close();
+                    foreach (string fileName in Request.Files)
+                    {
+                        HttpPostedFileBase file = Request.Files[fileName];
+
+                        //Get and scale image
+                        var image = Image.GetInstance(file.InputStream);
+                        image.ScaleToFit(doc.PageSize);
+
+                        //Add image to PDF
+                        doc.Add(image);
+                        doc.NewPage();
+                    }
+
+                    doc.Close();
 
                     //Must call doc.close to send a valid PDF, but this closes the stream too. Clone it to send.
-                    using(var clonedStream = new MemoryStream(stream.ToArray()))
-					{
-						clonedStream.Position = 0;
-						
-						//Send PDF to user
-						var send = this.Send(username, clonedStream);
-						if (!send.Success)
-						{
-							return RedirectToAction("Index", new { username = username, error = send.Message });
-						}
-						else
-						{
-							return RedirectToAction("ConvertSuccess", new { username = username });
-						}
-					}
+                    using (var clonedStream = new MemoryStream(stream.ToArray()))
+                    {
+                        clonedStream.Position = 0;
+
+                        //Send PDF to user
+                        var send = this.Send(username, clonedStream);
+                        if (!send.Success)
+                        {
+                            return RedirectToAction("Index", new { username = username, error = send.Message });
+                        }
+                        else
+                        {
+                            return RedirectToAction("ConvertSuccess", new { username = username });
+                        }
+                    }
                 }
             }
         }
-		
-		public CommonResponse Send(string recipient, Stream stream)
+
+        public async Task<CommonResponse> Send(string recipient, Stream stream)
         {
-			var output = new CommonResponse{
-				Message = "Failed to send PDF to " + recipient,
-				Success = false
-			};
-			
-            try {
-                // Create the email object first, then add the properties.
-                var myMessage = new SendGridMessage();
+            var output = new CommonResponse
+            {
+                Message = "Failed to send PDF to " + recipient,
+                Success = false
+            };
 
-                // Add the message properties.
-                myMessage.From = new MailAddress("joshua@asyncbuild.com", "Image2PDF");
-                myMessage.AddTo(recipient);
-                myMessage.Subject = "Your images have been converted to PDF!";
+            try
+            {
+                var mandrill = new MandrillApi(ConfigurationManager.AppSettings.Get("MandrillApiKey"));
 
-                //Add the HTML and Text bodies
-                myMessage.Html = "<p>Thank you for using Image2PDF! Your images have been converted to a PDF document, which you will find attached to this email.</p>";
-                myMessage.Text = "Thank you for using Image2PDF! Your images have been converted to a PDF document, which you will find attached to this email.";
+                //Create attachment
+                var attachment = new email_attachment()
+                {
+                    name = string.Format("Image2PDF_{0}.pdf", DateTime.Now.ToString("MMM-dd-yyyy-hh-mm-ss")),
+                    type = "application/pdf",
+                    content = "" //Convert.ToBase64String(stream)
+                };
 
-                //Attach the PDF
-                myMessage.AddAttachment(stream, string.Format("Image2PDF_{0}.pdf", DateTime.Now.ToString("MMM-dd-yyyy-hh-mm-ss")));
+                //Create email
+                var email = new EmailMessage()
+                {
+                    from_email = "joshua@asyncbuild.com",
+                    from_name = "Image2PDF",
+                    to = new List<EmailAddress>() { new EmailAddress(recipient) },
+                    subject = "[Image2PDF] Your images have been converted to PDF!",
+                    html = "<p>Thank you for using Image2PDF! Your images have been converted to a PDF document, which you will find attached to this email.</p>",
+                    text = "Thank you for using Image2PDF! Your images have been converted to a PDF document, which you will find attached to this email.",
+                    attachments = new List<email_attachment>() { attachment }
+                };
 
-                // Create network credentials to access your SendGrid account.
-                var credentials = new NetworkCredential("Rakathos", "inmYp4lac3de3p");
-
-                // Create an Web transport for sending email.
-                var transportWeb = new Web(credentials);
-
-                // Send the email.
-                transportWeb.Deliver(myMessage);
+                var send = await mandrill.SendMessageAsync(email);
 
                 output.Success = true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 output.Message = e.Message;
             }
-			
-			return output;
+
+            return output;
         }
-		
-		public ActionResult ConvertSuccess(string username){
-			ViewBag.Title = "Your PDF has been converted!";
-			ViewBag.Username = username;
-			
-			return View();
-		}
+
+        public ActionResult ConvertSuccess(string username)
+        {
+            ViewBag.Title = "Your PDF has been converted!";
+            ViewBag.Username = username;
+
+            return View();
+        }
     }
 }
