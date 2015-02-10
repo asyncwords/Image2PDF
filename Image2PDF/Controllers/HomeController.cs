@@ -47,7 +47,7 @@ namespace Image2PDF.Controllers
             return output;
         }
 
-        public ActionResult Convert(string username, string password)
+        public async Task<ActionResult> Convert(string username, string password)
         {
             var validate = this._CheckPassword(password);
 
@@ -88,7 +88,7 @@ namespace Image2PDF.Controllers
                         clonedStream.Position = 0;
 
                         //Send PDF to user
-                        var send = this.Send(username, clonedStream);
+                        var send = await this.Send(username, clonedStream);
                         if (!send.Success)
                         {
                             return RedirectToAction("Index", new { username = username, error = send.Message });
@@ -102,7 +102,7 @@ namespace Image2PDF.Controllers
             }
         }
 
-        public async Task<CommonResponse> Send(string recipient, Stream stream)
+        public async Task<CommonResponse> Send(string recipient, MemoryStream stream)
         {
             var output = new CommonResponse
             {
@@ -119,7 +119,7 @@ namespace Image2PDF.Controllers
                 {
                     name = string.Format("Image2PDF_{0}.pdf", DateTime.Now.ToString("MMM-dd-yyyy-hh-mm-ss")),
                     type = "application/pdf",
-                    content = "" //Convert.ToBase64String(stream)
+                    content = System.Convert.ToBase64String(stream.ToArray())
                 };
 
                 //Create email
